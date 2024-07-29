@@ -39,7 +39,7 @@ class codedeploy::params {
       $verbose = true
     }
     default: {
-      fail("${::operatingsystem} not supported")
+      fail("${facts['os']['name']} not supported")
     }
   }
 
