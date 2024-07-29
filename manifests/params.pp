@@ -5,7 +5,7 @@
 #
 class codedeploy::params {
   case $facts['os']['name'] {
-    'Debian': {
+    'Debian', 'Ubuntu': {
       $package_url  = 'https://s3.amazonaws.com/aws-codedeploy-us-east-1/latest/codedeploy-agent_all.deb'
       $package_name = 'codedeploy-agent'
       $service_name = 'codedeploy-agent'
