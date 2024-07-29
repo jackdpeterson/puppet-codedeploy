@@ -4,7 +4,7 @@
 # It sets variables according to platform.
 #
 class codedeploy::params {
-  case $::osfamily {
+  case $facts['os']['name'] {
     'Debian': {
       $package_url  = 'https://s3.amazonaws.com/aws-codedeploy-us-east-1/latest/codedeploy-agent_all.deb'
       $package_name = 'codedeploy-agent'

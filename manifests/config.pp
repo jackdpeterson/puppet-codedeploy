@@ -4,7 +4,7 @@
 #
 class codedeploy::config {
 
-  case $::osfamily {
+  case $facts['os']['name'] {
     'RedHat', 'Amazon': {
       file { $::codedeploy::config_location:
         ensure  => file,

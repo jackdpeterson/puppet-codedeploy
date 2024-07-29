@@ -4,7 +4,7 @@
 #
 class codedeploy::install {
 
-  case $::osfamily {
+  case $facts['os']['name'] {
     'RedHat', 'Amazon': {
       package { $::codedeploy::package_name:
         ensure   => present,
