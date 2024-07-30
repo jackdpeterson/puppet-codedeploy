@@ -19,7 +19,6 @@ class codedeploy (
   $root_dir = $::codedeploy::params::root_dir,
   $verbose = $::codedeploy::params::verbose,
   $wait_between_runs = $::codedeploy::params::wait_between_runs,
-  $proxy_uri = $::codedeploy::params::proxy_uri,
   $max_revisions = $::codedeploy::params::max_revisions,
 ) inherits ::codedeploy::params {
 
