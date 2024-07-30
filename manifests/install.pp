@@ -18,8 +18,8 @@ class codedeploy::install {
         source => $::codedeploy::package_url,
       }
     }
-    'Debian': {
-      if ! defined(Package['awscli']) {
+    'Debian', 'Ubuntu': {
+      if !defined(Package['awscli']) {
         package { 'awscli':
           ensure => present,
         }
@@ -45,7 +45,7 @@ class codedeploy::install {
       }
     }
     default: {
-      fail("${::operatingsystem} not supported")
+      fail("${facts['os']['name']} not supported")
     }
   }
 }
