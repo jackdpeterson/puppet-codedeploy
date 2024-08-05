@@ -15,6 +15,11 @@
 
 This module installs and enables the AWS CodeDeploy agent.
 
+
+## IMPORTANT
+
+You must manually define `File['/usr/local/bin/aws']` in your upstream project somewhere. 
+
 ## Module Description
 
 The AWS Codedeploy allows you to automatically deploy applications to AWS instances from S3 or GitHub. This module installs any required packages followed by the CodeDeploy agent. It then enables the codedeploy-agent service and ensures that it is running.
