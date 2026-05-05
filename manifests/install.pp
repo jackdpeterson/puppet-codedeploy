@@ -28,6 +28,14 @@ class codedeploy::install {
         require => [Archive['/tmp/codedeploy-agent.deb'], Package['ruby-full']],
         path    => ['/usr/local/sbin', '/usr/local/bin', '/usr/sbin', '/usr/bin', '/sbin', '/bin'],
       }
+      # Mark the package as hold to prevent apt from complaining about
+      # unsatisfied dependencies on subsequent installs.
+      exec { 'hold_codedeploy_agent':
+        command     => '/usr/bin/apt-mark hold codedeploy-agent',
+        unless      => '/usr/bin/apt-mark showhold | /usr/bin/grep -q codedeploy-agent',
+        require     => Exec['install_codedeploy_agent'],
+        path        => ['/usr/local/sbin', '/usr/local/bin', '/usr/sbin', '/usr/bin', '/sbin', '/bin'],
+      }
     }
     default: {
       fail("${facts['os']['name']} not supported")
