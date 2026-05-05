@@ -1,0 +1,31 @@
+name: Test CodeDeploy Module
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - base_image: ubuntu:24.04
+            package_manager: apt
+            name: Ubuntu 24.04
+          - base_image: ubuntu:26.04
+            package_manager: apt
+            name: Ubuntu 26.04
+          - base_image: amazonlinux:2023
+            package_manager: yum
+            name: Amazon Linux 2023
+    name: ${{ matrix.name }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and test
+        run: |
+          docker build -f Dockerfile.test \
+            --build-arg BASE_IMAGE=${{ matrix.base_image }} \
+            --build-arg PACKAGE_MANAGER=${{ matrix.package_manager }} \
+            -t puppet-codedeploy:test .
