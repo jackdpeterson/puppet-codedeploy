@@ -6,8 +6,25 @@ on:
   pull_request:
 
 jobs:
-  test:
+  lint:
     runs-on: ubuntu-latest
+    name: Lint & Unit Tests
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+      - name: Run lint
+        run: bundle exec rake lint
+      - name: Run spec
+        run: bundle exec rake spec
+      - name: Validate metadata
+        run: bundle exec metadata-json-lint metadata.json
+
+  integration:
+    runs-on: ubuntu-latest
+    needs: lint
     strategy:
       matrix:
         include:
@@ -22,7 +39,7 @@ jobs:
             name: Amazon Linux 2023
     name: ${{ matrix.name }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Build and test
         run: |
           docker build -f Dockerfile.test \

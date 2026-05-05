@@ -1,6 +1,6 @@
 # AWS CodeDeploy Puppet Module
 
-[![Test](https://github.com/walkamongus/puppet-codedeploy/actions/workflows/test.yml/badge.svg)](https://github.com/walkamongus/puppet-codedeploy/actions/workflows/test.yml)
+[![Test](https://github.com/jackdpeterson/puppet-codedeploy/actions/workflows/test.yml/badge.svg)](https://github.com/jackdpeterson/puppet-codedeploy/actions/workflows/test.yml)
 
 ## Build Status
 
@@ -61,7 +61,7 @@ Supported operating systems:
 * Debian 12, 13
 * Red Hat / Amazon Linux 8, 9, 10
 
-Requires Puppet 7 or 8.
+Requires Puppet 8.
 
 ## Testing
 

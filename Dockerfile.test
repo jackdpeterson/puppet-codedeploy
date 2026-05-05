@@ -17,10 +17,17 @@ RUN puppet module install puppet-archive --version 7.1.0
 
 COPY . /etc/puppet/code/modules/codedeploy
 
-# Apply and verify the package installed (service may fail in Docker - that's OK)
+# Apply module (service may fail in Docker - that's expected)
 RUN puppet apply -e "include codedeploy" --modulepath=/etc/puppet/code/modules || true
+
+# Validate package is installed
 RUN if [ "$PACKAGE_MANAGER" = "apt" ]; then \
-      dpkg -s codedeploy-agent; \
+      dpkg -s codedeploy-agent | grep "Status: install ok installed"; \
     else \
       rpm -q codedeploy-agent; \
     fi
+
+# Validate expected binaries exist
+RUN test -x /opt/codedeploy-agent/bin/codedeploy-agent && \
+    test -x /opt/codedeploy-agent/bin/codedeploy-local && \
+    test -x /opt/codedeploy-agent/bin/install

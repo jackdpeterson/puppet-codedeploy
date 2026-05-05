@@ -1,29 +1,18 @@
-# == Class codedeploy::install
-#
-# This class is called from codedeploy for install.
-#
+# @summary Installs the AWS CodeDeploy agent.
 class codedeploy::install {
-
   case $facts['os']['name'] {
     'RedHat', 'Amazon': {
-      $region = $::codedeploy::aws_region
-      package { $::codedeploy::package_name:
+      $region = $codedeploy::aws_region
+      package { $codedeploy::package_name:
         ensure   => present,
         provider => 'rpm',
         source   => "https://aws-codedeploy-${region}.s3.${region}.amazonaws.com/latest/codedeploy-agent.noarch.rpm",
       }
     }
-    'windows': {
-      $region = $::codedeploy::aws_region
-      package { $::codedeploy::package_name:
-        ensure => present,
-        source => "https://aws-codedeploy-${region}.s3.${region}.amazonaws.com/latest/codedeploy-agent.msi",
-      }
-    }
     'Debian', 'Ubuntu': {
       ensure_packages(['ruby-full'], { 'ensure' => 'present' })
 
-      $region = $::codedeploy::aws_region
+      $region  = $codedeploy::aws_region
       $deb_url = "https://aws-codedeploy-${region}.s3.${region}.amazonaws.com/latest/codedeploy-agent_all.deb"
 
       archive { '/tmp/codedeploy-agent.deb':
