@@ -11,3 +11,4 @@
 .yardoc
 coverage
 /.idea
+/extracted_deb

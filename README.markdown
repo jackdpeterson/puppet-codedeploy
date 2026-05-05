@@ -63,6 +63,14 @@ Supported operating systems:
 
 Requires Puppet 8.
 
+### Ruby Compatibility
+
+The `codedeploy-agent` `.deb` package declares dependencies on Ruby <= 3.2.
+However, analysis of the agent's Ruby source code confirms it is fully
+compatible with Ruby 3.3 (shipped with Ubuntu 26.04). This module uses
+`dpkg --force-depends` to bypass the packaging constraint on all
+Debian/Ubuntu versions.
+
 ## Testing
 
 ```bash
