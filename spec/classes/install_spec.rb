@@ -34,11 +34,13 @@ describe 'codedeploy::install' do
         source: 'https://aws-codedeploy-us-west-1.s3.us-west-1.amazonaws.com/latest/codedeploy-agent_all.deb',
       )
     }
+    it { is_expected.to contain_exec('patch_codedeploy_deb').that_requires('Archive[/tmp/codedeploy-agent.deb]') }
     it {
-      is_expected.to contain_exec('install_codedeploy_agent').with(
-        command: '/usr/bin/dpkg --force-depends -i /tmp/codedeploy-agent.deb',
-        unless: '/usr/bin/dpkg -s codedeploy-agent',
-      ).that_requires(['Archive[/tmp/codedeploy-agent.deb]', 'Package[ruby-full]'])
+      is_expected.to contain_package('codedeploy-agent').with(
+        ensure: 'present',
+        provider: 'dpkg',
+        source: '/tmp/codedeploy-agent-patched.deb',
+      ).that_requires(['Exec[patch_codedeploy_deb]', 'Package[ruby-full]'])
     }
   end
 
@@ -52,11 +54,12 @@ describe 'codedeploy::install' do
 
     it { is_expected.to compile.with_all_deps }
     it { is_expected.to contain_package('ruby-full').with_ensure('installed') }
+    it { is_expected.to contain_exec('patch_codedeploy_deb') }
     it {
-      is_expected.to contain_exec('install_codedeploy_agent').with(
-        command: '/usr/bin/dpkg --force-depends -i /tmp/codedeploy-agent.deb',
-        unless: '/usr/bin/dpkg -s codedeploy-agent',
-      ).that_requires(['Archive[/tmp/codedeploy-agent.deb]', 'Package[ruby-full]'])
+      is_expected.to contain_package('codedeploy-agent').with(
+        provider: 'dpkg',
+        source: '/tmp/codedeploy-agent-patched.deb',
+      )
     }
   end
 

@@ -19,22 +19,20 @@ class codedeploy::install {
         source  => $deb_url,
         creates => '/tmp/codedeploy-agent.deb',
       }
-      # The codedeploy-agent .deb declares dependencies on ruby <= 3.2, but
-      # the agent code is verified compatible with Ruby 3.3 (Ubuntu 26.04).
-      # We use --force-depends to bypass the packaging constraint.
-      exec { 'install_codedeploy_agent':
-        command => '/usr/bin/dpkg --force-depends -i /tmp/codedeploy-agent.deb',
-        unless  => '/usr/bin/dpkg -s codedeploy-agent',
-        require => [Archive['/tmp/codedeploy-agent.deb'], Package['ruby-full']],
+      # The upstream .deb only lists ruby <= 3.2 in Depends, but the agent
+      # is verified compatible with Ruby 3.3. Patch the control file to add
+      # ruby3.3 as an alternative so dpkg/apt are satisfied natively.
+      exec { 'patch_codedeploy_deb':
+        command => '/bin/bash -c "set -e; cd /tmp; mkdir -p codedeploy-repack; dpkg-deb -R codedeploy-agent.deb codedeploy-repack; sed -i s/ruby3.2/ruby3.2\\ |\\ ruby3.3/ codedeploy-repack/DEBIAN/control; dpkg-deb -b codedeploy-repack codedeploy-agent-patched.deb; rm -rf codedeploy-repack"',
+        creates => '/tmp/codedeploy-agent-patched.deb',
+        require => Archive['/tmp/codedeploy-agent.deb'],
         path    => ['/usr/local/sbin', '/usr/local/bin', '/usr/sbin', '/usr/bin', '/sbin', '/bin'],
       }
-      # Mark the package as hold to prevent apt from complaining about
-      # unsatisfied dependencies on subsequent installs.
-      exec { 'hold_codedeploy_agent':
-        command     => '/usr/bin/apt-mark hold codedeploy-agent',
-        unless      => '/usr/bin/apt-mark showhold | /usr/bin/grep -q codedeploy-agent',
-        require     => Exec['install_codedeploy_agent'],
-        path        => ['/usr/local/sbin', '/usr/local/bin', '/usr/sbin', '/usr/bin', '/sbin', '/bin'],
+      package { $codedeploy::package_name:
+        ensure   => present,
+        provider => 'dpkg',
+        source   => '/tmp/codedeploy-agent-patched.deb',
+        require  => [Exec['patch_codedeploy_deb'], Package['ruby-full']],
       }
     }
     default: {
