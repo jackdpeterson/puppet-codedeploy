@@ -1,7 +1,7 @@
 {
-  "name": "walkamongus-codedeploy",
+  "name": "jackdpeterson-codedeploy",
   "version": "1.0.1",
-  "author": "Chadwick Banning",
+  "author": "Jack Peterson",
   "summary": "Puppet module to manage the AWS CodeDeploy agent",
   "license": "Apache-2.0",
   "source": "git@github.com:jackdpeterson/puppet-codedeploy.git",
