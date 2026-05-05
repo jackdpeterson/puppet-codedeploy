@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -18,8 +21,7 @@ jobs:
         run: gem install pdk
       - name: Build module tarball
         run: pdk build
-      - name: Upload tarball
-        uses: actions/upload-artifact@v4
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: module-tarball
-          path: pkg/*.tar.gz
+          files: pkg/*.tar.gz
