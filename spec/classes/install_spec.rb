@@ -19,35 +19,32 @@ describe 'codedeploy::install' do
     }
   end
 
-  context "on Ubuntu 24.04" do
+  context "on Ubuntu 24.04 with Ruby 3.2" do
     let(:facts) do
       {
         os: { 'name' => 'Ubuntu', 'family' => 'Debian', 'release' => { 'major' => '24' } },
+        ruby: { 'version' => '3.2.0' },
       }
     end
     let(:pre_condition) { 'include codedeploy' }
 
     it { is_expected.to compile.with_all_deps }
     it { is_expected.to contain_package('ruby-full').with_ensure('installed') }
-    it {
-      is_expected.to contain_archive('/tmp/codedeploy-agent.deb').with(
-        source: 'https://aws-codedeploy-us-west-1.s3.us-west-1.amazonaws.com/latest/codedeploy-agent_all.deb',
-      )
-    }
-    it { is_expected.to contain_exec('patch_codedeploy_deb').that_requires('Archive[/tmp/codedeploy-agent.deb]') }
+    it { is_expected.not_to contain_exec('patch_codedeploy_deb') }
     it {
       is_expected.to contain_package('codedeploy-agent').with(
         ensure: 'present',
         provider: 'dpkg',
-        source: '/tmp/codedeploy-agent-patched.deb',
-      ).that_requires(['Exec[patch_codedeploy_deb]', 'Package[ruby-full]'])
+        source: '/tmp/codedeploy-agent.deb',
+      )
     }
   end
 
-  context "on Ubuntu 26.04" do
+  context "on Ubuntu 26.04 with Ruby 3.3" do
     let(:facts) do
       {
         os: { 'name' => 'Ubuntu', 'family' => 'Debian', 'release' => { 'major' => '26' } },
+        ruby: { 'version' => '3.3.0' },
       }
     end
     let(:pre_condition) { 'include codedeploy' }
@@ -67,6 +64,7 @@ describe 'codedeploy::install' do
     let(:facts) do
       {
         os: { 'name' => 'Ubuntu', 'family' => 'Debian', 'release' => { 'major' => '24' } },
+        ruby: { 'version' => '3.2.0' },
       }
     end
     let(:pre_condition) { "class { 'codedeploy': aws_region => 'eu-west-1' }" }

@@ -22,22 +22,37 @@ class codedeploy::install {
       # The upstream .deb only lists ruby <= 3.2 in Depends, but the agent
       # is verified compatible with Ruby 3.3. Patch the control file to add
       # ruby3.3 as an alternative so dpkg/apt are satisfied natively.
-      file { '/tmp/patch_codedeploy_deb.sh':
-        ensure => file,
-        source => 'puppet:///modules/codedeploy/patch_codedeploy_deb.sh',
-        mode   => '0755',
+      # Only needed when the system Ruby is 3.3+.
+      $ruby_version = $facts['ruby'] ? {
+        undef   => '0',
+        default => $facts['ruby']['version'],
       }
-      exec { 'patch_codedeploy_deb':
-        command => '/tmp/patch_codedeploy_deb.sh',
-        unless  => '/usr/bin/dpkg-deb -I /tmp/codedeploy-agent.deb | /usr/bin/grep -q ruby3.3',
-        require => [Archive['/tmp/codedeploy-agent.deb'], File['/tmp/patch_codedeploy_deb.sh']],
-        path    => ['/usr/local/sbin', '/usr/local/bin', '/usr/sbin', '/usr/bin', '/sbin', '/bin'],
-      }
-      package { $codedeploy::package_name:
-        ensure   => present,
-        provider => 'dpkg',
-        source   => '/tmp/codedeploy-agent-patched.deb',
-        require  => [Exec['patch_codedeploy_deb'], Package['ruby-full']],
+
+      if versioncmp($ruby_version, '3.3') >= 0 {
+        file { '/tmp/patch_codedeploy_deb.sh':
+          ensure => file,
+          source => 'puppet:///modules/codedeploy/patch_codedeploy_deb.sh',
+          mode   => '0755',
+        }
+        exec { 'patch_codedeploy_deb':
+          command => '/tmp/patch_codedeploy_deb.sh',
+          unless  => '/usr/bin/dpkg-deb -I /tmp/codedeploy-agent.deb | /usr/bin/grep -q ruby3.3',
+          require => [Archive['/tmp/codedeploy-agent.deb'], File['/tmp/patch_codedeploy_deb.sh']],
+          path    => ['/usr/local/sbin', '/usr/local/bin', '/usr/sbin', '/usr/bin', '/sbin', '/bin'],
+        }
+        package { $codedeploy::package_name:
+          ensure   => present,
+          provider => 'dpkg',
+          source   => '/tmp/codedeploy-agent-patched.deb',
+          require  => [Exec['patch_codedeploy_deb'], Package['ruby-full']],
+        }
+      } else {
+        package { $codedeploy::package_name:
+          ensure   => present,
+          provider => 'dpkg',
+          source   => '/tmp/codedeploy-agent.deb',
+          require  => [Archive['/tmp/codedeploy-agent.deb'], Package['ruby-full']],
+        }
       }
     }
     default: {
