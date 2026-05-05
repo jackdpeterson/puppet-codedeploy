@@ -22,13 +22,8 @@ class codedeploy::install {
       # The upstream .deb only lists ruby <= 3.2 in Depends, but the agent
       # is verified compatible with Ruby 3.3. Patch the control file to add
       # ruby3.3 as an alternative so dpkg/apt are satisfied natively.
-      # Only needed when the system Ruby is 3.3+.
-      $ruby_version = $facts['ruby'] ? {
-        undef   => '0',
-        default => $facts['ruby']['version'],
-      }
-
-      if versioncmp($ruby_version, '3.3') >= 0 {
+      # Only needed on OS versions that ship Ruby 3.3+ (Ubuntu 26.04+).
+      if $facts['os']['name'] == 'Ubuntu' and versioncmp($facts['os']['release']['major'], '26') >= 0 {
         file { '/tmp/patch_codedeploy_deb.sh':
           ensure => file,
           source => 'puppet:///modules/codedeploy/patch_codedeploy_deb.sh',

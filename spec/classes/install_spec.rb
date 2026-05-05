@@ -19,11 +19,10 @@ describe 'codedeploy::install' do
     }
   end
 
-  context "on Ubuntu 24.04 with Ruby 3.2" do
+  context "on Ubuntu 24.04" do
     let(:facts) do
       {
         os: { 'name' => 'Ubuntu', 'family' => 'Debian', 'release' => { 'major' => '24' } },
-        ruby: { 'version' => '3.2.0' },
       }
     end
     let(:pre_condition) { 'include codedeploy' }
@@ -40,11 +39,10 @@ describe 'codedeploy::install' do
     }
   end
 
-  context "on Ubuntu 26.04 with Ruby 3.3" do
+  context "on Ubuntu 26.04" do
     let(:facts) do
       {
         os: { 'name' => 'Ubuntu', 'family' => 'Debian', 'release' => { 'major' => '26' } },
-        ruby: { 'version' => '3.3.0' },
       }
     end
     let(:pre_condition) { 'include codedeploy' }
@@ -64,7 +62,6 @@ describe 'codedeploy::install' do
     let(:facts) do
       {
         os: { 'name' => 'Ubuntu', 'family' => 'Debian', 'release' => { 'major' => '24' } },
-        ruby: { 'version' => '3.2.0' },
       }
     end
     let(:pre_condition) { "class { 'codedeploy': aws_region => 'eu-west-1' }" }
