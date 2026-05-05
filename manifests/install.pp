@@ -6,38 +6,35 @@ class codedeploy::install {
 
   case $facts['os']['name'] {
     'RedHat', 'Amazon': {
+      $region = $::codedeploy::aws_region
       package { $::codedeploy::package_name:
         ensure   => present,
         provider => 'rpm',
-        source   => $::codedeploy::package_url,
+        source   => "https://aws-codedeploy-${region}.s3.${region}.amazonaws.com/latest/codedeploy-agent.noarch.rpm",
       }
     }
     'windows': {
+      $region = $::codedeploy::aws_region
       package { $::codedeploy::package_name:
         ensure => present,
-        source => $::codedeploy::package_url,
+        source => "https://aws-codedeploy-${region}.s3.${region}.amazonaws.com/latest/codedeploy-agent.msi",
       }
     }
     'Debian', 'Ubuntu': {
-      exec { 'download_codedeploy_installer':
-        command => 'aws s3 cp s3://aws-codedeploy-us-east-1/latest/install . --region us-east-1',
-        cwd     => '/tmp',
-        creates => '/tmp/install',
-        path    => ['/usr/bin', '/usr/local/bin'],
-        require => File['/usr/local/bin/aws'],
-      }
-      file { '/tmp/install':
-        ensure    => file,
-        owner     => 'root',
-        group     => 'root',
-        mode      => '0740',
-        subscribe => Exec['download_codedeploy_installer'],
-        notify    => Exec['install_codedeploy_agent'],
+      ensure_packages(['ruby-full'], { 'ensure' => 'present' })
+
+      $region = $::codedeploy::aws_region
+      $deb_url = "https://aws-codedeploy-${region}.s3.${region}.amazonaws.com/latest/codedeploy-agent_all.deb"
+
+      archive { '/tmp/codedeploy-agent.deb':
+        source  => $deb_url,
+        creates => '/tmp/codedeploy-agent.deb',
       }
       exec { 'install_codedeploy_agent':
-        command     => '/tmp/install auto',
-        cwd         => '/tmp',
-        refreshonly => true,
+        command => '/usr/bin/dpkg --force-depends -i /tmp/codedeploy-agent.deb',
+        unless  => '/usr/bin/dpkg -s codedeploy-agent',
+        require => [Archive['/tmp/codedeploy-agent.deb'], Package['ruby-full']],
+        path    => ['/usr/local/sbin', '/usr/local/bin', '/usr/sbin', '/usr/bin', '/sbin', '/bin'],
       }
     }
     default: {

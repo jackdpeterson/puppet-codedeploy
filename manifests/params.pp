@@ -6,7 +6,6 @@
 class codedeploy::params {
   case $facts['os']['name'] {
     'Debian', 'Ubuntu': {
-      $package_url  = 'https://s3.amazonaws.com/aws-codedeploy-us-east-1/latest/codedeploy-agent_all.deb'
       $package_name = 'codedeploy-agent'
       $service_name = 'codedeploy-agent'
       $config_location = '/etc/codedeploy-agent/conf/codedeployagent.yml'
@@ -17,7 +16,6 @@ class codedeploy::params {
       $verbose = false
     }
     'RedHat', 'Amazon': {
-      $package_url  = 'https://s3.amazonaws.com/aws-codedeploy-us-east-1/latest/codedeploy-agent.noarch.rpm'
       $package_name = 'codedeploy-agent'
       $service_name = 'codedeploy-agent'
       $config_location = '/etc/codedeploy-agent/conf/codedeployagent.yml'
@@ -28,7 +26,6 @@ class codedeploy::params {
       $verbose = false
     }
     'Windows': {
-      $package_url  = 'https://s3.amazonaws.com/aws-codedeploy-us-east-1/latest/codedeploy-agent.msi'
       $package_name = 'codedeployagent'
       $service_name = 'codedeployagent'
       $config_location = 'C:\ProgramData\Amazon\CodeDeploy\conf.yml'
@@ -46,5 +43,6 @@ class codedeploy::params {
   $log_aws_wire = false
   $wait_between_runs = 1
   $max_revisions = 5
+  $aws_region = 'us-west-1'
 
 }

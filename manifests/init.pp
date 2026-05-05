@@ -8,7 +8,6 @@
 #   Explanation of what this parameter affects and what it defaults to.
 #
 class codedeploy (
-  $package_url  = $::codedeploy::params::package_url,
   $package_name = $::codedeploy::params::package_name,
   $service_name = $::codedeploy::params::service_name,
   $config_location = $::codedeploy::params::config_location,
@@ -20,6 +19,7 @@ class codedeploy (
   $verbose = $::codedeploy::params::verbose,
   $wait_between_runs = $::codedeploy::params::wait_between_runs,
   $max_revisions = $::codedeploy::params::max_revisions,
+  $aws_region = $::codedeploy::params::aws_region,
 ) inherits ::codedeploy::params {
 
   # validate parameters here
