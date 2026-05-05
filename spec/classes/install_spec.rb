@@ -19,16 +19,17 @@ describe 'codedeploy::install' do
     }
   end
 
-  context "on Ubuntu" do
+  context "on Ubuntu 24.04" do
     let(:facts) do
       {
-        os: { 'name' => 'Ubuntu', 'family' => 'Debian' },
+        os: { 'name' => 'Ubuntu', 'family' => 'Debian', 'release' => { 'major' => '24' } },
       }
     end
     let(:pre_condition) { 'include codedeploy' }
 
     it { is_expected.to compile.with_all_deps }
     it { is_expected.to contain_package('ruby-full').with_ensure('installed') }
+    it { is_expected.not_to contain_exec('install_ruby32_snap') }
     it {
       is_expected.to contain_archive('/tmp/codedeploy-agent.deb').with(
         source: 'https://aws-codedeploy-us-west-1.s3.us-west-1.amazonaws.com/latest/codedeploy-agent_all.deb',
@@ -38,14 +39,38 @@ describe 'codedeploy::install' do
       is_expected.to contain_exec('install_codedeploy_agent').with(
         command: '/usr/bin/dpkg --force-depends -i /tmp/codedeploy-agent.deb',
         unless: '/usr/bin/dpkg -s codedeploy-agent',
+      ).that_requires(['Archive[/tmp/codedeploy-agent.deb]', 'Package[ruby-full]'])
+    }
+  end
+
+  context "on Ubuntu 26.04" do
+    let(:facts) do
+      {
+        os: { 'name' => 'Ubuntu', 'family' => 'Debian', 'release' => { 'major' => '26' } },
+      }
+    end
+    let(:pre_condition) { 'include codedeploy' }
+
+    it { is_expected.to compile.with_all_deps }
+    it { is_expected.not_to contain_package('ruby-full') }
+    it {
+      is_expected.to contain_exec('install_ruby32_snap').with(
+        command: '/usr/bin/snap install ruby --classic --channel=3.2/stable',
+        unless: '/usr/bin/snap list ruby',
       )
+    }
+    it {
+      is_expected.to contain_exec('install_codedeploy_agent').with(
+        command: '/usr/bin/dpkg --force-depends -i /tmp/codedeploy-agent.deb',
+        unless: '/usr/bin/dpkg -s codedeploy-agent',
+      ).that_requires(['Archive[/tmp/codedeploy-agent.deb]', 'Exec[install_ruby32_snap]'])
     }
   end
 
   context "with custom region" do
     let(:facts) do
       {
-        os: { 'name' => 'Ubuntu', 'family' => 'Debian' },
+        os: { 'name' => 'Ubuntu', 'family' => 'Debian', 'release' => { 'major' => '24' } },
       }
     end
     let(:pre_condition) { "class { 'codedeploy': aws_region => 'eu-west-1' }" }

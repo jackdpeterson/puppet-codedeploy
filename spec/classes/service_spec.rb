@@ -4,7 +4,7 @@ describe 'codedeploy::service' do
   context "on Ubuntu" do
     let(:facts) do
       {
-        os: { 'name' => 'Ubuntu', 'family' => 'Debian' },
+        os: { 'name' => 'Ubuntu', 'family' => 'Debian', 'release' => { 'major' => '24' } },
       }
     end
     let(:pre_condition) { 'include codedeploy' }
