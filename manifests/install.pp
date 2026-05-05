@@ -22,10 +22,15 @@ class codedeploy::install {
       # The upstream .deb only lists ruby <= 3.2 in Depends, but the agent
       # is verified compatible with Ruby 3.3. Patch the control file to add
       # ruby3.3 as an alternative so dpkg/apt are satisfied natively.
+      file { '/tmp/patch_codedeploy_deb.sh':
+        ensure => file,
+        source => 'puppet:///modules/codedeploy/patch_codedeploy_deb.sh',
+        mode   => '0755',
+      }
       exec { 'patch_codedeploy_deb':
-        command => '/bin/bash -c "set -e; cd /tmp; mkdir -p codedeploy-repack; dpkg-deb -R codedeploy-agent.deb codedeploy-repack; sed -i s/ruby3.2/ruby3.2\\ |\\ ruby3.3/ codedeploy-repack/DEBIAN/control; dpkg-deb -b codedeploy-repack codedeploy-agent-patched.deb; rm -rf codedeploy-repack"',
-        creates => '/tmp/codedeploy-agent-patched.deb',
-        require => Archive['/tmp/codedeploy-agent.deb'],
+        command => '/tmp/patch_codedeploy_deb.sh',
+        unless  => '/usr/bin/dpkg-deb -I /tmp/codedeploy-agent.deb | /usr/bin/grep -q ruby3.3',
+        require => [Archive['/tmp/codedeploy-agent.deb'], File['/tmp/patch_codedeploy_deb.sh']],
         path    => ['/usr/local/sbin', '/usr/local/bin', '/usr/sbin', '/usr/bin', '/sbin', '/bin'],
       }
       package { $codedeploy::package_name:
